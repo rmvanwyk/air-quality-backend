@@ -1,0 +1,37 @@
+version: '2.0'
+services:
+  openaq_stream:
+    build: ./src/openaq_stream
+    image: openaq_stream
+    command: [celery, worker, --app=openaq_stream.app, --concurrency=1, --loglevel=INFO, -Q, 'openaq_stream_queue']
+    environment: &env 
+      - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672
+      - CELERY_RESULT_BACKEND=rpc://
+      - FLOWER_PORT=8888
+    depends_on:
+      - rabbitmq
+    restart: 'no'
+  http-interface:
+    build: ./src/http_interface
+    image: http-interface
+    environment: *env 
+    depends_on:
+      - rabbitmq
+    restart: 'no'
+    ports:
+      - "80:5000"
+  db_message_broker:
+    build: ./src/db_message_broker
+    image: db_message_broker
+    command: [celery, worker, --app=db_message_broker.app, --concurrency=1, --loglevel=INFO, -Q, 'db_message_broker_queue']
+    environment: *env
+    depends_on:
+      - rabbitmq
+    restart: 'no'
+  rabbitmq:
+    image: rabbitmq:3.8.0
+  flower:
+    image: mher/flower
+    environment: *env
+    ports:
+      - 8888:8888

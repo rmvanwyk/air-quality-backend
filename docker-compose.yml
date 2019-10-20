@@ -11,6 +11,14 @@ services:
     depends_on:
       - rabbitmq
     restart: 'no'
+#  ambee_stream:
+#    build: ./src/ambee_stream
+#    image: ambee_stream
+#    command: [celery, worker, --app=ambee_stream.app, --concurrency=1, --loglevel=INFO, -Q, 'ambee_stream_queue']
+#    environment: *env 
+#    depends_on:
+#      - rabbitmq
+#    restart: 'no'
   http-interface:
     build: ./src/http_interface
     image: http-interface

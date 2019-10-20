@@ -57,10 +57,9 @@ def new_event():
 
 
 @celery.task()
-def show_user_event_location(location):
+def show_user_event_location(record):
     url = 'http://http-interface:5000/new-event'
-    print("LOCATION: {}".format(location))
-    requests.post(url, json={"location": location})
+    requests.post(url, json={"record": record})
 
 
 @socketio.on('connect', namespace='/test')
